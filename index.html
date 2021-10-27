@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>Language Translate</title>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Language Translate</h1>
+        <div id="app_area">
+            <div id="input_area">
+                <div>
+                    <span>From: </span>
+                    <select name="inputLanguage" id="inputLanguage">
+                        <option value="auto" selected>
+                            Auto Detect
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <textarea name="translate_input" id="translate_input" cols="30" rows="10"></textarea>
+                </div>
+            </div>
+            <div id="output_area">
+                <div>
+                    <span>To: </span>
+                    <select name="outputLanguage" id="outputLanguage">
+                    </select>
+                </div>
+                <div>
+                    <p id="translate_output"></p>
+                </div>
+            </div>
+        </div>
+        <div id="btn_area">
+            <button id="mic_btn" class="btn"> <img src="/images/mic-24.png" > Mic</button>
+            <button id="translate_btn" class="btn">Translate</button>
+            <button id="speak_btn" class="btn">Speak</button>
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+<script>
+
+    async function getData(path) {
+        try {
+            let res = await fetch(path);
+            let data = await res.json();
+            return data;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+
+    async function setSupportedLanguages() {
+
+        try {
+
+            let data = await getData("https://libretranslate.de/languages");
+
+            let input_selector = document.getElementById("inputLanguage");
+
+            let output_selector = document.getElementById("outputLanguage");
+
+            data.forEach(({ code, name }) => {
+                let option = document.createElement("option");
+                option.value = code;
+                option.innerText = name;
+                input_selector.append(option);
+                // output_selector.append(option);
+            });
+
+            data.forEach(({ code, name }) => {
+                let option = document.createElement("option");
+                option.value = code;
+                option.innerText = name;
+                // input_selector.append(option);
+                output_selector.append(option);
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    setSupportedLanguages();
+
+    document.getElementById("translate_input").addEventListener("input", translateDebounce);
+
+    document.getElementById("translate_btn").addEventListener("click", translateInput);
+
+    document.getElementById("mic_btn").addEventListener("click", startMic);
+
+    document.getElementById("speak_btn").addEventListener("click", speakOutput);
+
+
+    let timer;
+
+    function translateDebounce() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            translateInput()
+        }, 500);
+    }
+
+    async function translateInput() {
+
+        clearTimeout(timer);
+
+        let input = document.getElementById("translate_input").value;
+
+        let src = document.getElementById("inputLanguage").value;
+
+        if (input === null || input === "") {
+            document.getElementById("translate_output").innerText = "";
+            return;
+        }
+
+        let detail = {
+            q: input,
+            source: src,
+            target: document.getElementById("outputLanguage").value,
+        }
+
+        try {
+            let res = await fetch("https://libretranslate.de/translate", {
+                method: "POST",
+                body: JSON.stringify(detail),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+
+            let output = await res.json();
+
+            document.getElementById("translate_output").innerText = output.translatedText;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    function startMic() {
+        var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+
+        var recognition = new SpeechRecognition();
+
+        let mic_btn = document.getElementById("mic_btn");
+
+        recognition.onstart = function () {
+            mic_btn.innerText = "Listening";
+            // console.log("started listening");
+        };
+
+        recognition.onspeechend = function () {
+            recognition.stop();
+            mic_btn.innerText = "Processing";
+
+        }
+
+        recognition.onresult = function (event) {
+            let text = event.results[0][0].transcript;
+
+            document.getElementById("translate_input").innerText = text;
+
+            translateInput();
+
+            let img = document.createElement("img");
+            img.src = "images/mic-24.png";
+            mic_btn.innerText = "";
+            mic_btn.append(img, "Mic");
+
+            // mic_btn.innerText = "Mic";
+
+        }
+
+        recognition.start();
+    }
+
+    function speakOutput(){
+        let speech = new SpeechSynthesisUtterance();
+
+        speech.lang = document.getElementById("outputLanguage").value;
+
+        speech.text = document.getElementById("translate_output").innerText;
+
+        speech.volume = 1;
+        speech.rate = 1;
+        speech.pitch = 1;
+
+        window.speechSynthesis.speak(speech);
+
+    }
+
+
+
+
+
+
+</script>

@@ -1,0 +1,85 @@
+body {
+    font-family: 'Nunito', sans-serif;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+}
+
+#app_area{
+    border: 1px solid gray;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+#app_area > div {
+    width: 100%; 
+    padding: 10px;
+}
+
+#app_area > div > div{
+    padding-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+#app_area > div > div:nth-of-type(1){
+    border-bottom: 1px solid lightgray;
+}
+
+#app_area > div > div > select{
+    padding: 5px;
+    margin-left: 5px;
+}
+
+#app_area > div:nth-of-type(1) {
+    border-right: 1px solid lightgray;
+}
+
+#app_area > div:nth-of-type(2) p{
+    height: 100%;
+}
+
+#translate_input, #translate_output {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 300px;
+    border: none;
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+#btn_area {
+    margin-top: 6px;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background-color: rgb(110, 150, 202);
+    border: none;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    text-shadow: 0 0 2px black;
+    border-radius: 0.5rem;
+}
+
+.btn:hover {
+    background-color: rgb(92, 135, 190);
+}
+
+#mic_btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
